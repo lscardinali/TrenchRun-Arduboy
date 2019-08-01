@@ -15,20 +15,26 @@ Arduboy2 arduboy;
 const unsigned int FRAME_RATE = 60;
 const unsigned int DISTANCE_FROM_EXAUST_PORT = 65535;
 
-//Find a better state solution
-boolean introState = true;
-boolean menuState = false;
-boolean warmupState = false;
-boolean gameState = false;
-boolean winState = false;
-boolean loseState = false;
+enum game_states: byte {
+  intro_state,
+  menu_state,
+  warmup_state,
+  game_state,
+  win_state,
+  lose_state
+};
 
-boolean introText = true;
-boolean introLogo = false;
+
+enum intro_states: byte {
+  text_state,
+  logo_state,
+  crawl_state
+};
+
+byte current_state = intro_state;
+byte current_intro_state = intro_state;
 byte introLogoFrame = 0;
 int introCrawlFrame = 64;
-boolean introCrawl = false;
-
 
 unsigned int currentDistanceFromExaustPort = 65535;
 
@@ -247,28 +253,28 @@ void setup() {
 
 void loop() {
   arduboy.clear();
-  if(introState) {
+  if(current_state == intro_state) {
     titleScreen();
-  } else if(menuState) {
+  } else if(current_state == menu_state) {
     menu();
-  } else if(warmupState) {
+  } else if(current_state == warmup_state) {
     warmup();
-  } else if(gameState) {
+  } else if(current_state == game_state) {
     gameLoop();
-  } else if(winState) {
+  } else if(current_state == win_state) {
     win();
-  } else if(loseState) {
+  } else if(current_state == lose_state) {
     lose();
   }
   arduboy.display();
 }
 
 void titleScreen() {
-  if(introText) {
+  if(current_intro_state == text_state) {
     drawIntroText();
-  } else if(introLogo) {
+  } else if(current_intro_state == logo_state) {
     drawIntroLogo();
-  } else if(introCrawl) {
+  } else if(current_intro_state == crawl_state) {
     drawIntroCrawl();
   }
 }
@@ -281,8 +287,7 @@ void drawIntroText() {
   arduboy.print("far away...");
   arduboy.setTextSize(1);
   if(arduboy.everyXFrames(600)) {
-    introText = false;
-    introLogo = true;
+    current_intro_state = logo_state;
   }
 }
 
@@ -290,8 +295,7 @@ void drawIntroLogo() {
   Sprites::drawOverwrite(64,32,StarWarsLogo,introLogoFrame);
   if(arduboy.everyXFrames(60)) {
     if(introLogoFrame == 5) {
-      introLogo = false;
-      introCrawl = true;
+      current_intro_state = crawl_state;
     } else {
       introLogoFrame = introLogoFrame + 1;
     }
@@ -314,19 +318,15 @@ void drawIntroCrawl() {
     //This can get awry
     introCrawlFrame = introCrawlFrame -1;
     if(introCrawlFrame == -64) {
-      introCrawl = false;
-      introText = true;
-      introState = false;
-      menuState = true;
+      current_intro_state = text_state;
+      current_state = menu_state;
     }
   }
-  
 }
 
 void warmup() {
   if(lives == 0) {
-    warmupState = false;
-    loseState = true;
+    current_state = lose_state;
   } else {
     arduboy.setCursor(16,22);
     arduboy.print("Red 5, you're next,");
@@ -336,8 +336,7 @@ void warmup() {
     arduboy.print("Remaining Lifes:");
     arduboy.print(lives);
     if(arduboy.everyXFrames(120)) {
-      warmupState = false;
-      gameState = true;
+      current_state = game_state;
     }
   }
 }
@@ -347,17 +346,16 @@ void menu() {
    arduboy.setCursor(0,0);
    arduboy.print("Press the A button to start");
    if(arduboy.justPressed(A_BUTTON)) {
-    menuState = false;
-    warmupState = true;
+    current_state = warmup_state;
    }
 }
 
+//Refactor this win and lose functions
 void win() {
    arduboy.setCursor(0,0);
    arduboy.print("You Win");
    if(arduboy.justPressed(A_BUTTON)) {
-    winState = false;
-    introState = true;
+    current_state = intro_state;
    }
 }
 
@@ -365,8 +363,7 @@ void lose() {
    arduboy.setCursor(0,0);
    arduboy.print("You Lose");
    if(arduboy.justPressed(A_BUTTON)) {
-    loseState = false;
-    introState = true;
+    current_state = intro_state;
    }
 }
 
@@ -390,8 +387,7 @@ void gameLoop() {
 void checkDeath() {
   if(hull == 0) {
     lives = lives -1;
-    gameState = false;
-    warmupState = true;
+    current_state = warmup_state;
   }
 }
 

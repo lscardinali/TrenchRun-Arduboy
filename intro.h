@@ -28,8 +28,8 @@ void stateIntroCrawl() {
   if(crawlFrameCount == INTRO_CRAWL_FRAME_LIMIT) {
     gameState = STATE_MENU;
   } else {
-    Sprites::drawOverwrite(22, crawlFrameCount, StarWarsLogo, 0);
-    ab.setCursor(20, crawlFrameCount + 54);
+    Sprites::drawOverwrite(24, crawlFrameCount, StarWarsLogo, 0);
+    ab.setCursor(24, crawlFrameCount + 50);
     for (unsigned char i = 0; i < CRAWL_LINES; i++) {
       ab.println(strcpy_P(tBuffer, (char*)pgm_read_word(&(crawlText[i]))));
     }

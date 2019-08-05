@@ -6,7 +6,7 @@
 #define WARMUP_FRAME_COUNT 200
 
 void stateMenu() {
-  Sprites::drawOverwrite(22, 0, StarWarsLogo, 0);
+  Sprites::drawOverwrite(24, 0, StarWarsLogo, 0);
   ab.setCursor(34, 42);
   ab.print(strcpy_P(tBuffer, (char*)pgm_read_word(&(menuText[0]))));
   ab.setCursor(20, 56);

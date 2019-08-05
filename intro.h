@@ -10,10 +10,7 @@
 #define INTRO_LOGO_FRAME_UPDATE 30
 
 #define INTRO_CRAWL_FRAME_UPDATE 3
-#define INTRO_CRAWL_FRAME_LIMIT -128
-
-byte logoFrameCount = 0;
-int8_t crawlFrameCount = 64;
+#define INTRO_CRAWL_FRAME_LIMIT -180
 
 void stateIntroText() {
   ab.setCursor(0, 24);
@@ -21,31 +18,23 @@ void stateIntroText() {
     ab.println(strcpy_P(tBuffer, (char*)pgm_read_word(&(textIntro[i]))));
   }
   if (ab.everyXFrames(INTRO_TEXT_FRAME_LIMIT)) {
-    gameState = STATE_INTRO_LOGO;
-  }
-}
-
-void stateIntroLogo() {
-  if (logoFrameCount == INTRO_LOGO_FRAMES) {
     gameState = STATE_INTRO_CRAWL;
-  } else {
-    Sprites::drawOverwrite(2, 2, StarWarsLogoSprite, logoFrameCount);
-    if (ab.everyXFrames(INTRO_LOGO_FRAME_UPDATE)) {
-      logoFrameCount += 1;
-    }
   }
 }
 
 void stateIntroCrawl() {
+  if (!tunes.playing())
+    tunes.playScore(score);
   if(crawlFrameCount == INTRO_CRAWL_FRAME_LIMIT) {
     gameState = STATE_MENU;
   } else {
-    ab.setCursor(20, crawlFrameCount);
+    Sprites::drawOverwrite(22, crawlFrameCount, StarWarsLogo, 0);
+    ab.setCursor(20, crawlFrameCount + 54);
     for (unsigned char i = 0; i < CRAWL_LINES; i++) {
       ab.println(strcpy_P(tBuffer, (char*)pgm_read_word(&(crawlText[i]))));
     }
     if (ab.everyXFrames(INTRO_CRAWL_FRAME_UPDATE)) {
-      crawlFrameCount -= 1;
+      crawlFrameCount--;
     }
   }
 }

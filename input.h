@@ -7,11 +7,6 @@ void checkInput() {
   switch (gameState) {
     case STATE_INTRO_TEXT:
       if (ab.justPressed(A_BUTTON | B_BUTTON)) {
-        gameState = STATE_INTRO_LOGO;
-      }
-      break;
-    case STATE_INTRO_LOGO:
-      if (ab.justPressed(A_BUTTON | B_BUTTON)) {
         gameState = STATE_INTRO_CRAWL;
       }
       break;
@@ -23,6 +18,7 @@ void checkInput() {
     case STATE_MENU:
       if (ab.justPressed(A_BUTTON | B_BUTTON)) {
         gameState = STATE_WARMUP;
+        beep.tone(beep.freq(587.330), 5);
       }
       break;
     case STATE_GAME:
@@ -42,6 +38,21 @@ void checkInput() {
         crosshairY += 2;
       }
       
+      if (ab.pressed(A_BUTTON) || ab.pressed(B_BUTTON)) {
+        if(shootCooldownCounter == 0) {
+           shooting = true;
+           shootCooldownCounter = SHOOT_COOLDOWN;
+        }
+      }
+
+      break;
+    case STATE_WIN:
+    case STATE_LOSE:
+     if (ab.justPressed(A_BUTTON | B_BUTTON)) {
+        resetGame();
+        gameState = STATE_INTRO_TEXT;
+      }
+      break;
   }
 }
 

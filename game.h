@@ -5,19 +5,25 @@
 
 #define TRENCH_BACKGROUND_FRAMES 2
 
-
 byte trenchBackgroundFrame = 0;
 
 // TODO: No magic numbers
 void drawTrench() {
-   Sprites::drawOverwrite(-16 - xDisplacement / 3,
+  if(currentDistanceFromExaustPort == 0) {
+    Sprites::drawOverwrite(-16 - xDisplacement / 3,
                          -14 - yDisplacement / 3,
-                         trenchBackgroundSprites, 
-                         trenchBackgroundFrame); 
-                  
-  if (ab.everyXFrames(5))
-  {
-    (trenchBackgroundFrame == TRENCH_BACKGROUND_FRAMES) ? trenchBackgroundFrame = 0 : trenchBackgroundFrame += 1;
+                         TrenchBackgroundSprites, 
+                         3); 
+  } else {
+     Sprites::drawOverwrite(-16 - xDisplacement / 3,
+                           -14 - yDisplacement / 3,
+                           TrenchBackgroundSprites, 
+                           trenchBackgroundFrame); 
+                    
+    if (ab.everyXFrames(5))
+    {
+      (trenchBackgroundFrame == TRENCH_BACKGROUND_FRAMES) ? trenchBackgroundFrame = 0 : trenchBackgroundFrame += 1;
+    }
   }
 }
 
@@ -47,27 +53,26 @@ void calculateDisplacement() {
 void drawTies() {
   for(byte i = 0; i < 2; i++) {
     if(tieAlive[i]) {
-      if(tieFrame[i] == TIE_FRAMES) {
-        //Damage Player
-        tieAlive[i] = false;
-      }
       Sprites::drawPlusMask(tieX[i] - xDisplacement / 4, tieY[i] - yDisplacement / 4, tie, tieFrame[i]);
     }
   }
 }
 
 void checkForTieRespawn() {
-  if(ab.everyXFrames(60)) {
+  if(ab.everyXFrames(60) && currentDistanceFromExaustPort > 0) {
     for(byte i = 0; i < 2; i++) {
       if(i == 1 && !tie2Enabled) break;
-      if(tieRespawnTime[i] == 0 && !tieAlive[i]) {
-        tieRespawnTime[i] = random(3, 6);
-        tieAlive[i] = true;
-        tieX[i] = random(0, 100);
-        tieY[i] = random(0, 36);
-        tieFrame[i] = 0;
-      } else {
-        tieRespawnTime[i] -= 1;
+      if(!tieAlive[i]) {
+        if(tieRespawnTime[i] == 0) {
+          Serial.println("isnt alive");
+          tieRespawnTime[i] = random(1, 4);
+          tieAlive[i] = true;
+          tieX[i] = random(0, 100);
+          tieY[i] = random(0, 36);
+          tieFrame[i] = 0;
+        } else {
+          tieRespawnTime[i] -= 1;
+        }
       }
     }
   }
@@ -78,7 +83,9 @@ void advanceTies() {
     for(byte i = 0; i < 2; i++) { 
       if(tieAlive[i]) {
         if(tieFrame[i] == TIE_FRAMES) {
+          beep.tone(beep.freq(223.251), 5);
           tieAlive[i] = false;
+          hull -= 1;
         } else {
           tieFrame[i] += 1;
         }
@@ -87,12 +94,82 @@ void advanceTies() {
   }
 }
 
+void checkDeath() {
+ 
+  if(hull == 0) {
+    lives--;
+    if (lives == 0) {
+      gameState = STATE_LOSE;
+    } else {
+      gameState = STATE_WARMUP;
+    }
+  }
+}
+
+void checkFinalShot() {
+  if(ab.everyXFrames(60) && currentDistanceFromExaustPort == 0) {
+    hull = 0;
+  }
+}
+
+void checkShoot() {
+  if(shootCooldownCounter > 0) {
+    shootCooldownCounter--;
+  }
+  if(shooting) {
+    beep.tone(beep.freq(787.330), 5);
+    
+    byte crosshairXCenter = crosshairX + 5;
+    byte crosshairYCenter = crosshairY + 5;
+
+    if(currentDistanceFromExaustPort == 0) {
+      if(crosshairXCenter >= 58 && 
+             crosshairXCenter <= 70 &&
+             crosshairYCenter >= 26 && 
+             crosshairYCenter <= 38) {
+        gameState = STATE_WIN;       
+      }
+    }
+
+    for(byte i = 0; i < 2; i++) { 
+      if(tieAlive[i]) {
+          byte tieXCollisionStart = tieX[i] - xDisplacement / 4;
+          byte tieYCollisionStart = tieY[i] - yDisplacement / 4;
+          byte tieXCollisionEnd = (tieX[i] - xDisplacement / 4) + 14;
+          byte tieYCollisionEnd = (tieY[i] - yDisplacement / 4) + 28;
+          
+          if(crosshairXCenter >= tieXCollisionStart && 
+             crosshairXCenter <= tieXCollisionEnd &&
+             crosshairYCenter >= tieYCollisionStart && 
+             crosshairYCenter <= tieYCollisionEnd) {
+            tieAlive[i] = false;
+          }
+       }
+     }
+    blinkCounter = BLINK_FRAMES;
+    shooting = false;
+  }
+}
+
+void drawBlink() {
+  if(blinkCounter > 0) {
+    if(blinkCounter % 2) {
+      ab.fillRect(0, 0, 128, 64);
+    }
+    blinkCounter--;
+  }
+}
+
 void stateGame() {
+  checkShoot();
+  checkFinalShot();
+  checkDeath();
   calculateDisplacement();
   advanceTies();
   checkForTieRespawn();
   drawTrench();
   drawTies();
+  drawBlink();
   drawCockpit();
   drawCrosshair();
   decreaseDistance();

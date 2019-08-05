@@ -3,10 +3,10 @@
 
 #include "assets.h"
 
-#define WARMUP_FRAME_COUNT 120
+#define WARMUP_FRAME_COUNT 200
 
 void stateMenu() {
-  Sprites::drawOverwrite(2, 0, StarWarsLogoSprite, 2);
+  Sprites::drawOverwrite(22, 0, StarWarsLogo, 0);
   ab.setCursor(34, 42);
   ab.print(strcpy_P(tBuffer, (char*)pgm_read_word(&(menuText[0]))));
   ab.setCursor(20, 56);
@@ -24,13 +24,23 @@ void stateWarmup() {
   ab.print(lives);
   if (ab.everyXFrames(WARMUP_FRAME_COUNT))
   {
-    tieAlive[0] = false;
-    tieAlive[1] = false;
-    tieRespawnTime[0] = random(3, 6);
-    tieRespawnTime[1] = random(3, 6);
-    
+    resetLevel();
     gameState = STATE_GAME;
   }
+}
+
+void stateWin() {
+  ab.setCursor(0, 0);
+  ab.println("Congratulations");
+  ab.println("You WON!");
+  ab.println("Press a Button");
+}
+
+void stateLose() {
+  ab.setCursor(0, 0);
+  ab.println("Too bad");
+  ab.println("You Lose!");
+  ab.println("Press a Button");
 }
 
 #endif

@@ -15,18 +15,20 @@ typedef void (*FunctionPointer) ();
 
 const FunctionPointer PROGMEM mainGameLoop[] = {
   stateIntroText,
-  stateIntroLogo,
   stateIntroCrawl,
   stateMenu,
   stateWarmup,
   stateGame,
-//  stateWin,
-//  stateLose,
+  stateWin,
+  stateLose,
 };
 
 void setup() {
   ab.begin();
   Serial.begin(9600);
+  beep.begin();
+  tunes.initChannel(PIN_SPEAKER_1);
+  tunes.toneMutesScore(true);
   ab.initRandomSeed();
   ab.setFrameRate(FPS);
   ab.audio.on();
@@ -34,6 +36,7 @@ void setup() {
 
 void loop() {
   if (!(ab.nextFrame())) return;
+  beep.timer();
   ab.pollButtons();
   ((FunctionPointer) pgm_read_word(&mainGameLoop[gameState]))();
   checkInput();

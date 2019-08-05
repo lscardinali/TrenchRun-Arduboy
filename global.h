@@ -28,6 +28,7 @@
 #define TIE_FRAMES 7
 #define BLINK_FRAMES 6
 #define SHOOT_COOLDOWN 30;
+#define EXPLOSION_COOLDOWN 30;
 
 //#define FINAL_SHOT_FRAMES 60;
 
@@ -56,7 +57,7 @@ int8_t yDisplacement = 0;
 
 byte crosshairX = DEFAULT_CROSSHAIR_X;
 byte crosshairY = DEFAULT_CROSSHAIR_Y;
-unsigned int currentDistanceFromExaustPort = 10000;
+unsigned int currentDistanceFromExaustPort = DISTANCE_FROM_EXAUST_PORT;
 
 byte lastCpuLoad;
 
@@ -70,6 +71,7 @@ byte tieRespawnTime[2] = {0 , 0};
 byte tieX[2] = {0, 0};
 byte tieY[2] = {0, 0};
 byte tieFrame[2] = {0, 0};
+byte tieExplosionCooldown[2] = {0, 0};
 
 void drawCpuUsage()
 {
@@ -89,7 +91,7 @@ void resetLevel() {
     hull = 3;
     crosshairX = DEFAULT_CROSSHAIR_X;
     crosshairY = DEFAULT_CROSSHAIR_Y;
-    currentDistanceFromExaustPort = 1000;
+    currentDistanceFromExaustPort = DISTANCE_FROM_EXAUST_PORT;
 //    finalShotCounter = 0;
 }
 

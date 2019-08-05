@@ -52,7 +52,10 @@ void calculateDisplacement() {
 
 void drawTies() {
   for(byte i = 0; i < 2; i++) {
-    if(tieAlive[i]) {
+    if(!tieAlive[i] && tieExplosionCooldown[i] > 0) {
+      tieExplosionCooldown[i]--;
+      Sprites::drawPlusMask(tieX[i] - xDisplacement / 4, tieY[i] - yDisplacement / 4, tie, 8);
+    } else if(tieAlive[i]) {
       Sprites::drawPlusMask(tieX[i] - xDisplacement / 4, tieY[i] - yDisplacement / 4, tie, tieFrame[i]);
     }
   }
@@ -143,6 +146,7 @@ void checkShoot() {
              crosshairYCenter >= tieYCollisionStart && 
              crosshairYCenter <= tieYCollisionEnd) {
             tieAlive[i] = false;
+            tieExplosionCooldown[i] = EXPLOSION_COOLDOWN;
           }
        }
      }
@@ -159,6 +163,7 @@ void drawBlink() {
     blinkCounter--;
   }
 }
+
 
 void stateGame() {
   checkShoot();

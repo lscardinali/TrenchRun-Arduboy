@@ -19,19 +19,19 @@ const FunctionPointer PROGMEM mainGameLoop[] = {
   stateMenu,
   stateWarmup,
   stateGame,
+  statePause,
+  stateDeath,
   stateWin,
   stateLose,
 };
 
 void setup() {
   ab.begin();
-  Serial.begin(9600);
   beep.begin();
   tunes.initChannel(PIN_SPEAKER_1);
   tunes.toneMutesScore(true);
   ab.initRandomSeed();
   ab.setFrameRate(FPS);
-  ab.audio.on();
 }
 
 void loop() {
@@ -40,6 +40,5 @@ void loop() {
   ab.pollButtons();
   ((FunctionPointer) pgm_read_word(&mainGameLoop[gameState]))();
   checkInput();
-//  drawCpuUsage();
   ab.display(true);
 }

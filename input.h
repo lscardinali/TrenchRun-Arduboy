@@ -38,15 +38,29 @@ void checkInput() {
         crosshairY += 2;
       }
       
-      if (ab.pressed(A_BUTTON) || ab.pressed(B_BUTTON)) {
+      if (ab.pressed(B_BUTTON)) {
         if(shootCooldownCounter == 0) {
            shooting = true;
            shootCooldownCounter = SHOOT_COOLDOWN;
         }
       }
 
+      if (ab.justPressed(A_BUTTON)) {
+        gameState = STATE_PAUSE;
+      }
+
+      break;
+    case STATE_PAUSE:
+      if (ab.justPressed(A_BUTTON)) {
+        gameState = STATE_GAME;
+      }
       break;
     case STATE_WIN:
+    if (ab.justPressed(A_BUTTON | B_BUTTON)) {
+        resetGame();
+        gameState = STATE_INTRO_TEXT;
+      }
+      break;
     case STATE_LOSE:
      if (ab.justPressed(A_BUTTON | B_BUTTON)) {
         resetGame();

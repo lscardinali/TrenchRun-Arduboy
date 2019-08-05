@@ -20,8 +20,7 @@ void drawTrench() {
                            TrenchBackgroundSprites, 
                            trenchBackgroundFrame); 
                     
-    if (ab.everyXFrames(5))
-    {
+    if (ab.everyXFrames(5)) {
       (trenchBackgroundFrame == TRENCH_BACKGROUND_FRAMES) ? trenchBackgroundFrame = 0 : trenchBackgroundFrame += 1;
     }
   }
@@ -98,20 +97,18 @@ void advanceTies() {
 }
 
 void checkDeath() {
- 
-  if(hull == 0) {
+  if(hull == 0 ) {
     lives--;
-    if (lives == 0) {
-      gameState = STATE_LOSE;
-    } else {
-      gameState = STATE_WARMUP;
-    }
+    explosionBlinkCounter = EXPLOSION_BLINK_FRAMES;
+    gameState = STATE_DEATH;
   }
 }
 
 void checkFinalShot() {
-  if(ab.everyXFrames(60) && currentDistanceFromExaustPort == 0) {
-    hull = 0;
+  if(currentDistanceFromExaustPort == 0) {
+    if(ab.everyXFrames(90)) {
+      hull = 0;
+    }
   }
 }
 
@@ -136,11 +133,10 @@ void checkShoot() {
 
     for(byte i = 0; i < 2; i++) { 
       if(tieAlive[i]) {
-          byte tieXCollisionStart = tieX[i] - xDisplacement / 4;
-          byte tieYCollisionStart = tieY[i] - yDisplacement / 4;
-          byte tieXCollisionEnd = (tieX[i] - xDisplacement / 4) + 14;
-          byte tieYCollisionEnd = (tieY[i] - yDisplacement / 4) + 28;
-          
+          byte tieXCollisionStart = tieX[i] - (xDisplacement / 4) + 2;
+          byte tieYCollisionStart = tieY[i] - (yDisplacement / 4) + 2;
+          byte tieXCollisionEnd = (tieX[i] - (xDisplacement / 4)) + 26;
+          byte tieYCollisionEnd = (tieY[i] - (yDisplacement / 4)) + 30;
           if(crosshairXCenter >= tieXCollisionStart && 
              crosshairXCenter <= tieXCollisionEnd &&
              crosshairYCenter >= tieYCollisionStart && 
@@ -165,13 +161,19 @@ void drawBlink() {
 }
 
 void drawHull() {
-  ab.setCursor(0,0);
+  ab.setCursor(36,0);
   ab.print("hull:");
-  ab.fillRect(30,2,20 * hull,2);
+  ab.print((hull * 100)/3);
+  ab.print("%");
+}
+
+void checkEnableTie() {
+  if(currentDistanceFromExaustPort == DISTANCE_FROM_EXAUST_PORT/2 && !tie2Enabled) tie2Enabled = true;
 }
 
 
 void stateGame() {
+  checkEnableTie();
   checkShoot();
   checkFinalShot();
   checkDeath();
@@ -185,6 +187,26 @@ void stateGame() {
   drawCrosshair();
   drawHull();
   decreaseDistance();
+}
+
+void statePause() {
+  ab.setCursor(44, 32);
+  ab.println("-PAUSE-");
+}
+
+void stateDeath() {
+  if(explosionBlinkCounter == 0) {
+    if (lives == 0) {
+      gameState = STATE_LOSE;
+    } else {
+      gameState = STATE_WARMUP;
+    }
+  } else {
+    if(explosionBlinkCounter % 4) {
+      ab.fillRect(0, 0, 128, 64);
+    }
+      explosionBlinkCounter--;
+    }
 }
 
 #endif

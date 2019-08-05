@@ -92,7 +92,6 @@ void resetLevel() {
     crosshairX = DEFAULT_CROSSHAIR_X;
     crosshairY = DEFAULT_CROSSHAIR_Y;
     currentDistanceFromExaustPort = DISTANCE_FROM_EXAUST_PORT;
-//    finalShotCounter = 0;
 }
 
 void resetGame() {
@@ -100,6 +99,5 @@ void resetGame() {
   logoFrameCount = 0;
   crawlFrameCount = 64;
 }
-
 
 #endif

@@ -86,7 +86,7 @@ void advanceTies() {
     for(byte i = 0; i < 2; i++) { 
       if(tieAlive[i]) {
         if(tieFrame[i] == TIE_FRAMES) {
-          beep.tone(beep.freq(223.251), 5);
+          beep.tone(beep.freq(323.251), 5);
           tieAlive[i] = false;
           hull -= 1;
         } else {
@@ -120,7 +120,7 @@ void checkShoot() {
     shootCooldownCounter--;
   }
   if(shooting) {
-    beep.tone(beep.freq(787.330), 5);
+    beep.tone(beep.freq(587.330), 5);
     
     byte crosshairXCenter = crosshairX + 5;
     byte crosshairYCenter = crosshairY + 5;
@@ -164,6 +164,12 @@ void drawBlink() {
   }
 }
 
+void drawHull() {
+  ab.setCursor(0,0);
+  ab.print("hull:");
+  ab.fillRect(30,2,20 * hull,2);
+}
+
 
 void stateGame() {
   checkShoot();
@@ -177,6 +183,7 @@ void stateGame() {
   drawBlink();
   drawCockpit();
   drawCrosshair();
+  drawHull();
   decreaseDistance();
 }
 

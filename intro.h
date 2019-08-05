@@ -23,8 +23,8 @@ void stateIntroText() {
 }
 
 void stateIntroCrawl() {
-  if (!tunes.playing())
-    tunes.playScore(score);
+//  if (!tunes.playing())
+//    tunes.playScore(score);
   if(crawlFrameCount == INTRO_CRAWL_FRAME_LIMIT) {
     gameState = STATE_MENU;
   } else {

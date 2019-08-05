@@ -40,6 +40,6 @@ void loop() {
   ab.pollButtons();
   ((FunctionPointer) pgm_read_word(&mainGameLoop[gameState]))();
   checkInput();
-  drawCpuUsage();
+//  drawCpuUsage();
   ab.display(true);
 }

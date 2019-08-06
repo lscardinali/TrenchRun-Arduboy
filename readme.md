@@ -12,6 +12,7 @@ You have to fight against Tie-Fighters to reach the Exhaustion Port and deliver 
   - B Button: Fire
 
 Keep tracking the distance counter on the ship's panel, because when it reaches 0 you have a little more than a second to hit the exustation port.
+
 ![Alt text](images/4.png?raw=true "Screenshot4")
 
 License

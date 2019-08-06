@@ -15,8 +15,4 @@ Keep tracking the distance counter on the ship's panel, because when it reaches 
 
 ![Alt text](images/4.png?raw=true "Screenshot4")
 
-License
-----
 Star Wars is a property of © Disney.  All rights reserved.
-
-[MIT](https://opensource.org/licenses/MIT)

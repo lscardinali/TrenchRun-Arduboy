@@ -28,24 +28,43 @@ void stateWarmup() {
   }
 }
 
+int calculateScore(int starting) {
+  int score = starting;
+  score += lives * 500;
+  score += hull * 100;
+  score += defeatedTies * 10;
+  return score;
+}
+
 void stateWin() {
   ab.setCursor(0, 0);
   ab.println("Congratulations!");
   ab.println("");
   ab.println("You've dealt a");
-  ab.println("criplling blow to the ");
-   ab.println("empire!");
+  ab.println("crippling blow to the ");
+  ab.println("empire!");
+  ab.println("");
+  ab.print("SCORE: ");
+  ab.print(calculateScore(1000));
+  
   ab.setCursor(18, 56);
   ab.println("-Press a Button-");
 }
 
 void stateLose() {
+   int score = 0;
+  score += lives * 500;
+  score += hull * 100;
+  score += defeatedTies * 10;
   ab.setCursor(0, 0);
   ab.println("Hope is lost!");
   ab.println("");
   ab.println("With you dies the");
   ab.println("last hope for a ");
-   ab.println("liberated galaxy...");
+  ab.println("liberated galaxy...");
+  ab.println("");
+  ab.print("SCORE: ");
+  ab.print(calculateScore(0));
   ab.setCursor(18, 56);
   ab.println("-Press a Button-");
 }

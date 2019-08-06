@@ -28,9 +28,22 @@ void drawTrench() {
 
 void drawCockpit() {
   //TODO: No Magic Numbers
-  Sprites::drawPlusMask(-16 + xDisplacement / 2, -14 + yDisplacement / 2, cockpit, 0);
-  ab.setCursor(50 + xDisplacement / 2, 50 + yDisplacement / 2);
-  ab.print("0");
+  int8_t extraDisplacement = 0;
+  if(shipShakeCounter > 0) {
+    extraDisplacement = (shipShakeCounter % 4 == 0) ? 2 : -2;
+    shipShakeCounter--;
+  }
+  
+  Sprites::drawPlusMask((-16 + xDisplacement / 2) + extraDisplacement,
+                        (-14 + yDisplacement / 2) + extraDisplacement * -1, cockpit, 0);
+                        
+  ab.setCursor((50 + xDisplacement / 2) + extraDisplacement,
+               (50 + yDisplacement / 2) + extraDisplacement * -1);
+  ab.print("0");         
+  if(currentDistanceFromExaustPort < 1000) ab.print("0");
+  if(currentDistanceFromExaustPort < 100) ab.print("0");
+  if(currentDistanceFromExaustPort < 10) ab.print("0");
+  
   ab.print(currentDistanceFromExaustPort);
 }
 
@@ -50,7 +63,7 @@ void calculateDisplacement() {
 }
 
 void drawTies() {
-  for(byte i = 0; i < 2; i++) {
+  for(byte i = 0; i < TIE_MAX_COUNT; i++) {
     if(!tieAlive[i] && tieExplosionCooldown[i] > 0) {
       tieExplosionCooldown[i]--;
       Sprites::drawPlusMask(tieX[i] - xDisplacement / 4, tieY[i] - yDisplacement / 4, tie, 8);
@@ -62,8 +75,8 @@ void drawTies() {
 
 void checkForTieRespawn() {
   if(ab.everyXFrames(60) && currentDistanceFromExaustPort > 0) {
-    for(byte i = 0; i < 2; i++) {
-      if(i == 1 && !tie2Enabled) break;
+    for(byte i = 0; i < TIE_MAX_COUNT; i++) {
+      if(!tieEnabled[i]) break;
       if(!tieAlive[i]) {
         if(tieRespawnTime[i] == 0) {
           Serial.println("isnt alive");
@@ -81,12 +94,13 @@ void checkForTieRespawn() {
 }
 
 void advanceTies() {
-  if(ab.everyXFrames(30)) {
-    for(byte i = 0; i < 2; i++) { 
+  if(ab.everyXFrames(tieFrameSpeed)) {
+    for(byte i = 0; i < TIE_MAX_COUNT; i++) { 
       if(tieAlive[i]) {
         if(tieFrame[i] == TIE_FRAMES) {
           beep.tone(beep.freq(323.251), 5);
           tieAlive[i] = false;
+          shipShakeCounter = SHIP_SHAKE_COOLDOWN;
           hull -= 1;
         } else {
           tieFrame[i] += 1;
@@ -106,9 +120,10 @@ void checkDeath() {
 
 void checkFinalShot() {
   if(currentDistanceFromExaustPort == 0) {
-    if(ab.everyXFrames(90)) {
+    if(lastShotCooldown == 0) {
       hull = 0;
     }
+    lastShotCooldown--;
   }
 }
 
@@ -131,7 +146,7 @@ void checkShoot() {
       }
     }
 
-    for(byte i = 0; i < 2; i++) { 
+    for(byte i = 0; i < TIE_MAX_COUNT; i++) { 
       if(tieAlive[i]) {
           byte tieXCollisionStart = tieX[i] - (xDisplacement / 4) + 2;
           byte tieYCollisionStart = tieY[i] - (yDisplacement / 4) + 2;
@@ -142,6 +157,7 @@ void checkShoot() {
              crosshairYCenter >= tieYCollisionStart && 
              crosshairYCenter <= tieYCollisionEnd) {
             tieAlive[i] = false;
+            defeatedTies++;
             tieExplosionCooldown[i] = EXPLOSION_COOLDOWN;
           }
        }
@@ -167,13 +183,19 @@ void drawHull() {
   ab.print("%");
 }
 
-void checkEnableTie() {
-  if(currentDistanceFromExaustPort == DISTANCE_FROM_EXAUST_PORT/2 && !tie2Enabled) tie2Enabled = true;
+void checkTieBehavior() {
+  if(currentDistanceFromExaustPort == DISTANCE_ENABLE_TIE2 && !tieEnabled[1]) {
+    tieEnabled[1] = true;
+  } else if(currentDistanceFromExaustPort == DISTANCE_ENABLE_SPEED) {
+    tieFrameSpeed = TIE_FRAME_SPEED_FAST;
+  } else if(currentDistanceFromExaustPort == DISTANCE_ENABLE_MAX_SPEED) {
+    tieFrameSpeed = TIE_FRAME_SPEED_FASTEST;
+  }
 }
 
 
 void stateGame() {
-  checkEnableTie();
+  checkTieBehavior();
   checkShoot();
   checkFinalShot();
   checkDeath();
@@ -202,7 +224,7 @@ void stateDeath() {
       gameState = STATE_WARMUP;
     }
   } else {
-    if(explosionBlinkCounter % 4) {
+    if(explosionBlinkCounter % 8) {
       ab.fillRect(0, 0, 128, 64);
     }
       explosionBlinkCounter--;

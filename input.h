@@ -38,7 +38,7 @@ void checkInput() {
         crosshairY += 2;
       }
       
-      if (ab.pressed(B_BUTTON)) {
+      if (ab.justPressed(B_BUTTON)) {
         if(shootCooldownCounter == 0) {
            shooting = true;
            shootCooldownCounter = SHOOT_COOLDOWN;

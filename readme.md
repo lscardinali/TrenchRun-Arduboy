@@ -1,7 +1,7 @@
 # [Arduboy] Star Wars - Trench Run
 
-Trench Run is an Arcade game for [Arduboy Game System](https://www.arduboy.com), where you play as a rebel pilot on the Death Star assault.
-You have to fight against Tie-Fighters to reach the Exhaustion Port and deliver the shot that will ultimately destroy the battle station.
+Trench Run is an Arcade game for [Arduboy Game System](https://www.arduboy.com), where you play as a rebel pilot on the Doom Sphere assault.
+You have to fight against Imperial Fighters to reach the Exhaustion Port and deliver the shot that will ultimately destroy the battle station.
 
 ![Alt text](images/1.png?raw=true "Screenshot1")
 ![Alt text](images/2.png?raw=true "Screenshot2")
